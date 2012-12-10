@@ -198,3 +198,15 @@ def x509_pkcs12(pem, password):
     p_ssl.wait()
     return base64.encodestring(p_ssl.stdout.read())
 
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Create and sign a WebID certificate based on a Netscape SPKAC request (using the KEYGEN element in HTML).')
+
+    parser.add_argument('-s', '--spkac', help="Netscape SPKAC public key", required=True)
+    parser.add_argument('-n', '--name', help="Certificate commonName value", required=True)
+    parser.add_argument('-w', '--webid', help="WebID URI (subjectAltName)", required=True)
+    parser.add_argument('-d', '--days', help="Certificate validity (in days)", default=360)
+
+    args = parser.parse_args()
+    print sign_spkac(args.spkac, args.name, args.days, altName=args.webid)
+    
