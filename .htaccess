@@ -1,0 +1,20 @@
+<IfModule mod_fcgid.c>
+   AddHandler cgi-script .fcgi
+   <Files ~ (\.fcgi)>
+       SetHandler cgi-script
+       Options +FollowSymLinks +ExecCGI
+   </Files>
+</IfModule>
+
+Options +FollowSymlinks
+SSLVerifyClient require
+
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{HTTPS} !on
+RewriteRule ^(.*)$ https://webid.mit.edu:444/$1 [L,R,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ app.fcgi/$1 [QSA,L]
+
