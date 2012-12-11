@@ -73,7 +73,7 @@ CLIENT_EXTENSIONS = (
     #crypto.X509Extension('nsCertType', False, 'client, email'),
     #crypto.X509Extension('keyUsage', False, 'digitalSignature, nonRepudiation, keyEncipherment'),
     #crypto.X509Extension('extendedKeyUsage', False, 'clientAuth, emailProtection'),
-    crypto.X509Extension('authorityInfoAccess', False, 'OCSP;URI:https://webid.mit.edu/OCSP'),
+    #crypto.X509Extension('authorityInfoAccess', False, 'OCSP;URI:https://webid.mit.edu/OCSP'),
     #crypto.X509Extension('issuerAltName', False, 'issuer:copy'),
     #crypto.X509Extension('subjectAltName', False, 'email:copy'),
 )
@@ -136,7 +136,7 @@ def sign(pkey, p_ca_pem, p_ca_key, commonName, days, emailAddress=None, altName=
     #uid_dc = get_UID_DC(userid)
     #if uid_dc:
     #    subj.DC = ','.join(uid_dc[1])
-    #    subj.UID = uid_dc[0]
+    #    subj.UID = uid_dc[0]0
     x509.set_subject(subj)
     x509.add_extensions(CLIENT_EXTENSIONS)
     if altName:
@@ -154,12 +154,11 @@ def sign(pkey, p_ca_pem, p_ca_key, commonName, days, emailAddress=None, altName=
     # insert public key
     x509.set_pubkey(pkey)
 
-    '''
+    # add identifiers
     x509.add_extensions((
-        crypto.X509Extension('subjectKeyIdentifier', False, 'hash'),
-        crypto.X509Extension('authorityKeyIdentifier', False, 'keyid,issuer:always'),
+        crypto.X509Extension('subjectKeyIdentifier', False, 'hash', subject=x509),
+        crypto.X509Extension('authorityKeyIdentifier', False, 'keyid', issuer=ca_x509),
     ))
-    '''
 
     # sign with CA private key
     x509.sign(ca_key, 'sha1')
