@@ -12,9 +12,8 @@ SSLVerifyClient optional
 RewriteEngine On
 RewriteBase /
 
-RewriteRule ^(user/.*)$ app.fcgi/$1 [QSA,L]
-
 RewriteCond %{HTTPS} !on
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !/user/
 RewriteRule ^(.*)$ https://webid.mit.edu/$1 [R,QSA,L]
 

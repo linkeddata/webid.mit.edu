@@ -49,12 +49,14 @@ def user(u):
         r += '<#> '
         if also:
             r += 'rdfs:seeAlso <' + also + '> '
-        r += keys and '; ' or '.'
+            if keys:
+                r += '; '
         n3 = []
         for ts, mod, ip, ua in keys:
             n3.append('''[ a cert:RSAPublicKey ; cert:exponent "65537" ; cert:modulus "''' + mod + '" ]')
         if keys:
-            r += 'cert:key\n' + ',\n'.join(n3) + ' .'
+            r += 'cert:key\n' + ',\n'.join(n3)
+        r += ' .'
     return Response(r, mimetype='text/turtle')
 
 @app.before_request
