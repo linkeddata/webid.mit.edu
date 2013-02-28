@@ -21,9 +21,20 @@ def user_keys(user):
     f = 'data/user/'+user+'/keys'
     try:
         for line in file(f):
-            r += [line.split('\t')]
+            line = line.strip()
+            if line:
+                r += [line.split('\t')]
     except IOError: pass
     return sorted(r, reverse=True)
+
+def user_revoke(user, key):
+    f = 'data/user/'+user+'/keys'
+    r = user_keys(user)
+    r = filter(lambda k: k[1] != key, r)
+    s = ''
+    for k in r:
+        s += '\t'.join(k)+'\n'
+    file(f,'w').write(s)
 
 def user_seeAlso(user, new=None):
     f = 'data/user/'+user+'/seeAlso'
@@ -38,7 +49,8 @@ def user_seeAlso(user, new=None):
 
 @app.template_filter('key_when')
 def key_when(key):
-    return time.strftime('%c', time.gmtime(int(key[0])))
+    t = key[0].strip() or 0
+    return time.strftime('%c', time.gmtime(int(t)))
 
 @app.route('/user/<u>')
 def user(u):
@@ -79,6 +91,10 @@ def index():
     hello = g.DN.get('CN','')
     uid = g.DN.get('emailAddress','').split('@')[0]
     webid = 'http://webid.mit.edu/user/'+uid+'#'
+
+    submit = request.form.get('submit')
+    if submit == 'revoke':
+        user_revoke(uid, key=request.form.get('key'))
 
     seeAlso1 = request.form.get('seeAlso')
     seeAlso = user_seeAlso(uid, seeAlso1)

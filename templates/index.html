@@ -12,12 +12,14 @@
     <tr><th>time</th><th>modulus</th><th>device</th></tr>
     </thead>
     {% for key in keys %}
+    <form method="post">
     <tr>
         <td>{{ key|key_when }}</td>
-        <td><input type="text" value="{{ key[1] }}" readonly=readonly /></td>
+        <td><input type="text" value="{{ key[1] }}" readonly=readonly name="key" /></td>
         <td>{{ key[3] }}</td>
-        <td><button class="btn-danger" disabled=disabled>revoke</button>
+        <td><button class="btn-danger" type="submit" name="submit" value="revoke">revoke</button>
     </tr>
+    </form>
     {% endfor %}
     </table>
 
