@@ -165,10 +165,15 @@ def sign(pkey, p_ca_pem, p_ca_key, commonName, days, emailAddress=None, altName=
     x509.sign(ca_key, 'sha1')
     return x509
 
-def sign_spkac(spki, commonName, days, emailAddress=None, altName=None, userid=None):
+def spkac_x509(spki, commonName, days, emailAddress=None, altName=None, userid=None):
     spki = crypto.NetscapeSPKI(spki)
-    x509 = sign(spki.get_pubkey(), None, None, commonName, days, emailAddress, altName, userid)
+    return sign(spki.get_pubkey(), None, None, commonName, days, emailAddress, altName, userid)
+
+def x509_asn1(x509):
     return crypto.dump_certificate(crypto.FILETYPE_ASN1, x509)
+
+def sign_spkac(spki, commonName, days, emailAddress=None, altName=None, userid=None):
+    return x509_asn1(spkac_x509(spki, commonName, days, emailAddress, altName, userid))
 
 def sign_req(pem, p_ca_pem, p_ca_key, commonName, days, emailAddress=None, altName=None, userid=None):
     x509 = crypto.load_certificate_request(crypto.FILETYPE_PEM, pem)
@@ -198,6 +203,15 @@ def x509_pkcs12(pem, password):
     p_ssl.wait()
     return base64.encodestring(p_ssl.stdout.read())
 
+def x509_mod(x509):
+    p = crypto.dump_certificate(crypto.FILETYPE_PEM, x509)
+    p_ssl = Popen(['openssl','x509','-outform','der','-noout','-modulus'], stdin=PIPE, stdout=PIPE)
+    p_ssl.stdin.write(p)
+    p_ssl.stdin.close()
+    p_ssl.wait()
+    r = p_ssl.stdout.read()
+    return r.strip().split('=',1)[1]
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Create and sign a WebID certificate based on a Netscape SPKAC request (using the KEYGEN element in HTML).')
@@ -209,4 +223,3 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     print sign_spkac(args.spkac, args.name, args.days, altName=args.webid)
-    

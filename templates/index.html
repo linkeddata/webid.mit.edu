@@ -1,45 +1,72 @@
 {% extends "base.html" %}
 
-{% block title %}Welcome!{% endblock %}
+{% block title %}WebID@mit.edu{% endblock %}
 
 {% block main %}
- 
+
+<div class="container" style="max-height: 20em; overflow-y: scroll"> 
+{% if keys %}
+    <h2>Active Keys</h2>
+    <table class="table table-striped">
+    <thead>
+    <tr><th>time</th><th>modulus</th><th>device</th><th>via</th></tr>
+    </thead>
+    {% for key in keys %}
+    <tr>
+        <td>{{ key|key_when }}</td>
+        <td><input type="text" value="{{ key[1] }}" readonly=readonly /></td>
+        <td>{{ key[3] }}</td>
+        <td>{{ key[2] }}</td>
+        <td><button class="btn-danger" disabled=disabled>revoke</button>
+    </tr>
+    {% endfor %}
+    </table>
+
+{% else %}
+<p>You have no keys. <b>Add New Key</b> below to get started!</p>
+{% endif %}
+
+</div>
+
+<hr />
+
     <div class="container"> 
- 
-      <!-- Main hero unit for a primary marketing message or call to action --> 
-      <div class="hero-unit"> 
-        <h1>keygen</h1>
-        <form method="post" accept="application/x-x509-user-cert">
-        <keygen name="spkac">
-        <input type="submit" value="submit">
-        </form>
-        <!--<p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p> -->
-      </div> 
- 
-      <!-- Example row of columns --> 
+
+    <script type="text/javascript">
+        function refreshSoon() {
+            setInterval(function() { window.location = '/'; }, 3000);
+        }
+    </script>
+
       <div class="row"> 
         <div class="span4"> 
-          <h2>Heading</h2> 
-          <p>foo</p>
-          <p><a class="btn" href="#">View details &raquo;</a></p> 
+          <h2>Add New Key</h2> 
+          <p>Issue a WebID certificate for your current browser:</p>
+          <form method="post" onsubmit="refreshSoon()">
+          name: <input name="x509cn" type="text" placeholder="{{ x509cn }}" /><br />
+          validity (days): <input name="x509days" class="input-mini" type="text" placeholder="{{ x509days }}" /><br />
+          strength: <keygen name="spkac" /><br /><br />
+          <button type="submit" class="btn" />add new</button>
+          </form>
         </div> 
         <div class="span4"> 
-          <h2>Heading</h2> 
-          <p>bar</p>
+          <h2>Set <a target="_blank" href="//www.w3.org/wiki/UsingSeeAlso">seeAlso</a></h2> 
+          <p>Link additional profile data:</p>
+          <form method="post">
+          <div class="input-append">
+              <input name="seeAlso" type="text" value="{{ seeAlso }}" placeholder="eg. https://{{ uid }}.mit.edu/profile#" />
+              <button class="btn" type="submit">save</button>
+          </div>
+          </form>
        </div> 
-        <div class="span4"> 
-          <h2>Heading</h2> 
-          <p>baz</p>
-          <p><a class="btn" href="#">View details &raquo;</a></p> 
-        </div> 
       </div> 
- 
       <hr> 
- 
       <footer> 
-        <p>website</p> 
+        <p align="right">
+            <a target="_blank" href="http://webid.info/">info</a>
+            | <a target="_blank" href="//www.w3.org/wiki/WebID">wiki</a>
+            | <a target="_blank" href="https://dvcs.w3.org/hg/WebID/raw-file/tip/spec/index-respec.html">spec</a>
+        </p>
       </footer> 
- 
     </div> <!-- /container --> 
- 
 {% endblock %}

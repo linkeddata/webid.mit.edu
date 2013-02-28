@@ -20,8 +20,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
   <!-- Place favicon.ico and apple-touch-icon.png in static dir for Flask -->
-  <link rel="shortcut icon" href="/static/favicon.ico">
-  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+  <link rel="shortcut icon" href="https://scripts.mit.edu/favicon.ico">
+  <!--link rel="apple-touch-icon" href="/static/apple-touch-icon.png"-->
 
   <!-- CSS: implied media=all -->
   <!-- CSS concatenated and minified via ant build script-->
@@ -29,6 +29,10 @@
   <link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="/static/css/outer.css">
+  <style type="text/css">
+  input[type=submit] { padding: 0.5em; margin: 1em auto; }
+  .alert { width: 50%; margin-left: 4em; }
+  </style>
   <!-- end CSS-->
 
 
@@ -55,12 +59,13 @@
     <div class="navbar navbar-fixed-top"> 
       <div class="navbar-inner"> 
         <div class="container"> 
+          <a class="brand" href="/">Hello {{ hello }}</a> 
+          <!--
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
             <span class="icon-bar"></span> 
             <span class="icon-bar"></span> 
             <span class="icon-bar"></span> 
           </a> 
-          <a class="brand" href="#">appname</a> 
           <div class="nav-collapse"> 
             <ul class="nav"> 
               <li class="active"><a href="/">Home</a></li> 
@@ -68,8 +73,12 @@
               <li><a href="#contact">Contact</a></li>
               <li><a href="/login/">Login</a></li>
               <li><a href="/users/create/">Signup</a></li>                
-            </ul> 
-          </div><!--/.nav-collapse --> 
+            </ul>
+          </div>
+          -->
+          <div style="float: right; padding: 1em">you are:
+            <a target="_blank" href="{{ webid }}">{{ webid }}</a>
+          </div>
         </div> 
       </div> 
     </div> 
