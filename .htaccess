@@ -1,3 +1,6 @@
+BrowserMatch MSIE ie
+Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
+
 <IfModule mod_fcgid.c>
    AddHandler fcgid-script .fcgi
    <Files ~ (\.fcgi)>

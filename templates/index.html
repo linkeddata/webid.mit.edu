@@ -9,14 +9,13 @@
     <h2>Active Keys</h2>
     <table class="table table-striped">
     <thead>
-    <tr><th>time</th><th>modulus</th><th>device</th><th>via</th></tr>
+    <tr><th>time</th><th>modulus</th><th>device</th></tr>
     </thead>
     {% for key in keys %}
     <tr>
         <td>{{ key|key_when }}</td>
         <td><input type="text" value="{{ key[1] }}" readonly=readonly /></td>
         <td>{{ key[3] }}</td>
-        <td>{{ key[2] }}</td>
         <td><button class="btn-danger" disabled=disabled>revoke</button>
     </tr>
     {% endfor %}
@@ -25,7 +24,6 @@
 {% else %}
 <p>You have no keys. <b>Add New Key</b> below to get started!</p>
 {% endif %}
-
 </div>
 
 <hr />
@@ -60,13 +58,14 @@
           </form>
        </div> 
       </div> 
-      <hr> 
-      <footer> 
-        <p align="right">
-            <a target="_blank" href="http://webid.info/">info</a>
-            | <a target="_blank" href="//www.w3.org/wiki/WebID">wiki</a>
-            | <a target="_blank" href="https://dvcs.w3.org/hg/WebID/raw-file/tip/spec/index-respec.html">spec</a>
-        </p>
-      </footer> 
-    </div> <!-- /container --> 
+    </div> <!-- /container -->
+{% endblock %}
+
+{% block footer %}
+  <hr> 
+    <p align="right" style="margin: 1em;">
+        <a target="_blank" href="http://webid.info/">info</a>
+        | <a target="_blank" href="//www.w3.org/wiki/WebID">wiki</a>
+        | <a target="_blank" href="https://dvcs.w3.org/hg/WebID/raw-file/tip/spec/index-respec.html">spec</a>
+    </p>
 {% endblock %}
