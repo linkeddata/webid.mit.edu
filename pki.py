@@ -136,7 +136,7 @@ def sign(pkey, p_ca_pem, p_ca_key, commonName, days, emailAddress=None, altName=
     #uid_dc = get_UID_DC(userid)
     #if uid_dc:
     #    subj.DC = ','.join(uid_dc[1])
-    #    subj.UID = uid_dc[0]0
+    #    subj.UID = uid_dc[0]
     x509.set_subject(subj)
     x509.add_extensions(CLIENT_EXTENSIONS)
     if altName:
