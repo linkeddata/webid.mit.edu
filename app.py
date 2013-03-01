@@ -1,13 +1,20 @@
-#!/usr/bin/python
-# app.py
-
-from flask import Flask, request, Response, jsonify, render_template, abort, flash, redirect, g
-
+from flask import Flask, request, Response, jsonify, render_template, flash, redirect, g, url_for, session
 app = Flask(__name__)
+GKEY = app.secret_key = 'AIzaSyAsBJB7EatrohvAQArfqfCPSrP6s91reyY'
 #app.debug = True
-app.secret_key = 'mysecretkey'
 
-import os, time
+from werkzeug.exceptions import Unauthorized
+class RequireID(Unauthorized):
+    def get_description(self, env):
+        vhost = env.get('SERVER_NAME') or env.get('HTTP_HOST') or ''
+        return (
+            '<a href="https://' + vhost + ':444/">MIT Certificate</a>'
+            ' (<a href="https://ca.mit.edu/">help</a>)'
+            ' or <a href="/login?provider=Gmail">Google Account</a>'
+            ' required'
+        )
+
+import json, os, time
 
 def user_add_key(user, key):
     f = 'data/user/'+user+'/keys'
@@ -52,6 +59,7 @@ def key_when(key):
     t = key[0].strip() or 0
     return time.strftime('%c', time.gmtime(int(t)))
 
+@app.route('/<u>')
 @app.route('/user/<u>')
 def user(u):
     r = '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix cert: <http://www.w3.org/ns/auth/cert#> .\n'
@@ -78,19 +86,40 @@ def before_request():
         lst = elt.split('=',1)
         if len(lst) > 1:
             DN[lst[0]] = lst[1]
-    if not DN:
-        path = request.url.split('/')
-        if len(path) < 4 or not path[3] in ('user',):
-            abort(403, 'MIT certificate required (see https://ca.mit.edu/)')
     g.DN = DN
+
+    g.hasLogout = False
+    user = {}
+    if 'CN' in DN and 'emailAddress' in DN:
+        user = {'name': DN['CN'], 'mbox': DN['emailAddress']}
+    if 'user' in session and session['user'] and 'mbox' in session['user'] and session['user']['mbox']:
+        g.hasLogout = True
+        user = session['user']
+    g.user = user
+
+    if not g.user:
+        path = request.path.split('/') or ('', '')
+        if not path[1] in ('id', 'login', 'user') and not '@' in path[1]:
+            raise RequireID()
 
 import pki
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    hello = g.DN.get('CN','')
-    uid = g.DN.get('emailAddress','').split('@')[0]
-    webid = 'http://webid.mit.edu/user/'+uid+'#'
+    hello = g.user['name']
+    uid = g.user['mbox']
+
+    uid = uid.lower()
+    if uid[-8:] == '@mit.edu':
+        uid = uid[:-8]
+
+    vhost = request.host
+    if ':' in vhost:
+        vhost = vhost.split(':',1)[0]
+    if '@' in uid:
+        webid = 'http://' + vhost + '/'+uid+'#'
+    else:
+        webid = 'http://' + vhost + '/user/'+uid+'#'
 
     submit = request.form.get('submit')
     if submit == 'revoke':
@@ -116,3 +145,48 @@ def index():
 @app.route('/favicon.ico')
 def favicon():
     return redirect('https://scripts.mit.edu/favicon.ico', 302)
+
+import httplib2
+http = httplib2.Http()
+
+def gverify():
+    q = {
+        'postBody': request.data,
+        'requestUri': request.url,
+        'userIp': request.remote_addr,
+    }
+    r = http.request('https://www.googleapis.com/identitytoolkit/v1/relyingparty/verifyAssertion?key=' + GKEY,
+            method='POST', headers={'Content-Type': 'application/json'}, body=json.dumps(q))
+    if int(r[0]['status']) == 200:
+        return json.loads(r[1])
+
+@app.route('/login')
+def login():
+    provider = request.values.get('provider')
+    if provider:
+        q = {
+            'continueUrl': url_for('login', _external=True).replace('http:','https:'),
+            'identifier': provider.lower()+'.com',
+            'uiMode': 'redirect',
+            'userIp': request.remote_addr,
+        }
+        r = http.request('https://www.googleapis.com/identitytoolkit/v1/relyingparty/createAuthUrl?key=' + GKEY,
+                method='POST', headers={'Content-Type': 'application/json'}, body=json.dumps(q))
+        j = json.loads(r[1])
+        if int(r[0]['status']) == 200:
+            if 'authUri' in j:
+                return redirect(j['authUri'], 303)
+        return jsonify(j)
+    v = gverify() or {}
+    if not 'verifiedEmail' in v:
+        return jsonify(v)
+    session['user'] = {
+        'mbox': v['verifiedEmail'],
+        'name': v.get('displayName') or (v.get('firstName','') + v.get('lastName','')) or v.get('name',''),
+    }
+    return redirect('/')
+
+@app.route('/logout')
+def logout():
+    del session['user']
+    return redirect('/')

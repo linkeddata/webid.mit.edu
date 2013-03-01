@@ -2,23 +2,25 @@ BrowserMatch MSIE ie
 Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
 
 <IfModule mod_fcgid.c>
-   AddHandler fcgid-script .fcgi
+   AddHandler cgi-script .fcgi
    <Files ~ (\.fcgi)>
-       SetHandler fcgid-script
+       SetHandler cgi-script
        Options +FollowSymLinks +ExecCGI
    </Files>
 </IfModule>
 
 Options +FollowSymlinks
-SSLVerifyClient optional
+#SSLVerifyClient optional
 
 RewriteEngine On
-RewriteBase /
+#RewriteBase /
 
 RewriteCond %{HTTPS} !on
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !/user/
-RewriteRule ^(.*)$ https://webid.mit.edu/$1 [R,QSA,L]
+RewriteCond %{REQUEST_URI} !^/login
+RewriteCond %{REQUEST_URI} !^/user/
+RewriteCond %{REQUEST_URI} !@
+RewriteRule ^(.*)$ https://%{SERVER_NAME}/$1 [R,QSA,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ app.fcgi/$1 [QSA,L]

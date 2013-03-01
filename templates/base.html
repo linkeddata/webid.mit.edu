@@ -44,9 +44,12 @@
     <div class="navbar navbar-fixed-top"> 
       <div class="navbar-inner"> 
         <div class="container"> 
-          <a class="brand" href="/">Hello {{ hello }}</a> 
-          <div style="float: right; padding: 1em">you are:
-            <a target="_blank" href="{{ webid }}">{{ webid }}</a>
+          <a class="brand" href="/">Hello {{ hello }}</a>
+          <div style="padding: 1em">
+            {% if g.hasLogout %}
+            <sup><a href="/logout">Logout</a></sup>
+            {% endif %}
+            <a style="float: right" target="_blank" href="{{ webid }}">{{ webid }}</a>
           </div>
         </div> 
       </div> 
