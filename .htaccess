@@ -2,9 +2,9 @@ BrowserMatch MSIE ie
 Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
 
 <IfModule mod_fcgid.c>
-   AddHandler cgi-script .fcgi
+   AddHandler fcgid-script .fcgi
    <Files ~ (\.fcgi)>
-       SetHandler cgi-script
+       SetHandler fcgid-script
        Options +FollowSymLinks +ExecCGI
    </Files>
 </IfModule>
