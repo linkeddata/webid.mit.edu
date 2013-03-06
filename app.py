@@ -99,7 +99,7 @@ def before_request():
 
     if not g.user:
         path = request.path.split('/') or ('', '')
-        if not path[1] in ('id', 'login', 'user') and not '@' in path[1]:
+        if path[1] in ('',) and not '@' in path[1]:
             raise RequireID()
 
 import pki
@@ -116,10 +116,11 @@ def index():
     vhost = request.host
     if ':' in vhost:
         vhost = vhost.split(':',1)[0]
-    if '@' in uid:
-        webid = 'http://' + vhost + '/'+uid+'#'
+    if request.environ.get('SSL_SERVER_I_DN_OU') in ('InCommon',):
+        scheme = 'https:'
     else:
-        webid = 'http://' + vhost + '/user/'+uid+'#'
+        scheme = 'http:'
+    webid = scheme + '//' + vhost + '/'+uid+'#'
 
     submit = request.form.get('submit')
     if submit == 'revoke':
