@@ -62,6 +62,13 @@ def key_when(key):
 @app.route('/<u>')
 @app.route('/user/<u>')
 def user(u):
+    for mtype, q in request.accept_mimetypes:
+        if '/turtle' in mtype or '/n3' in mtype:
+            return userTurtle(u)
+        elif '/html' in mtype:
+            return userHTML(u)
+
+def userTurtle(u):
     r = '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix cert: <http://www.w3.org/ns/auth/cert#> .\n'
     also = user_seeAlso(u)
     keys = user_keys(u)
@@ -78,6 +85,38 @@ def user(u):
             r += 'cert:key\n' + ',\n'.join(n3)
         r += ' .'
     return Response(r, mimetype='text/turtle')
+
+def userHTML(u):
+    return '''
+<!doctype html><html id="docHTML"><head>
+<link type="text/css" rel="stylesheet" href="https://w3.scripts.mit.edu/tabulator/tabbedtab.css" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://w3.scripts.mit.edu/tabulator/js/mashup/mashlib.js"></script>
+<script type="text/javascript">
+
+/* http://api.jquery.com/extending-ajax/#Prefilters */
+jQuery.ajaxPrefilter(function(options) {
+    if (options.crossDomain) {
+        options.url = "https://w3.scripts.mit.edu/proxy?uri=" + encodeURIComponent(options.url);
+    }
+});
+
+jQuery(document).ready(function() {
+    var uri = window.location.href;
+    window.document.title = uri;
+    var kb = tabulator.kb;
+    var subject = kb.sym(uri);
+    tabulator.outline.GotoSubject(subject, true, undefined, true, undefined);
+});
+</script>
+</head>
+<body>
+<div class="TabulatorOutline" id="DummyUUID">
+    <table id="outline"></table>
+</div>
+</body>
+</html>
+'''
 
 @app.before_request
 def before_request():
