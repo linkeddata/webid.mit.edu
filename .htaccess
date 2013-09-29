@@ -1,12 +1,17 @@
-BrowserMatch MSIE ie
-Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
-
 <IfModule mod_fcgid.c>
    AddHandler fcgid-script .fcgi
    <Files ~ (\.fcgi)>
        SetHandler fcgid-script
-       Options +FollowSymLinks +ExecCGI
+       Options +ExecCGI
    </Files>
+</IfModule>
+
+<IfModule mod_headers.c>
+    BrowserMatch MSIE ie
+    Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
+    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
 </IfModule>
 
 Options +FollowSymlinks

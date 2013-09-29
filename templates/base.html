@@ -44,7 +44,13 @@
     <div class="navbar navbar-fixed-top"> 
       <div class="navbar-inner"> 
         <div class="container"> 
-          <a class="brand" href="/">Hello {{ hello }}</a>
+          <a class="brand" href="/">
+          {% if hello %}
+            Hello {{ hello }}
+          {% else %}
+            MIT WebID Service
+          {% endif %}
+          </a>
           <div style="padding: 1em">
             {% if g.hasLogout %}
             <sup><a href="/logout">Logout</a></sup>

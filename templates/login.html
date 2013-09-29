@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}WebID@mit.edu{% endblock %}
+
+{% block main %}
+
+    <div class="container"> 
+
+    Login with:
+    <a href="https://{{ vhost }}:444/">MIT Certificate</a> (<a href="https://ca.mit.edu/">help</a>)
+    or <a href="/login?provider=Gmail">Google Account</a>
+
+    </div>
+{% endblock %}
+
+{% block footer %}
+  <hr> 
+    <p align="right" style="margin: 1em;">
+        <a target="_blank" href="http://webid.info/">info</a>
+        | <a target="_blank" href="//www.w3.org/wiki/WebID">wiki</a>
+        | <a target="_blank" href="https://dvcs.w3.org/hg/WebID/raw-file/tip/spec/index-respec.html">spec</a>
+    </p>
+{% endblock %}

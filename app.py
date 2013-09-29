@@ -1,18 +1,7 @@
 from flask import Flask, request, Response, jsonify, render_template, flash, redirect, g, url_for, session
 app = Flask(__name__)
 GKEY = app.secret_key = 'AIzaSyAsBJB7EatrohvAQArfqfCPSrP6s91reyY'
-#app.debug = True
-
-from werkzeug.exceptions import Unauthorized
-class RequireID(Unauthorized):
-    def get_description(self, env):
-        vhost = env.get('SERVER_NAME') or env.get('HTTP_HOST') or ''
-        return (
-            '<a href="https://' + vhost + ':444/">MIT Certificate</a>'
-            ' (<a href="https://ca.mit.edu/">help</a>)'
-            ' or <a href="/login?provider=Gmail">Google Account</a>'
-            ' required'
-        )
+app.debug = True
 
 import json, os, time
 
@@ -67,13 +56,14 @@ def user(u):
             return userTurtle(u)
         elif '/html' in mtype:
             return userHTML(u)
+    return userTurtle(u)
 
 def userTurtle(u):
     r = '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix cert: <http://www.w3.org/ns/auth/cert#> .\n'
     also = user_seeAlso(u)
     keys = user_keys(u)
     if also or keys:
-        r += '<#> '
+        r += '<'+u+'#> '
         if also:
             r += 'rdfs:seeAlso <' + also + '> '
             if keys:
@@ -139,7 +129,8 @@ def before_request():
     if not g.user:
         path = request.path.split('/') or ('', '')
         if path[1] in ('',) and not '@' in path[1]:
-            raise RequireID()
+            vhost = request.environ.get('SERVER_NAME') or request.environ.get('HTTP_HOST') or ''
+            return render_template('login.html', **locals())
 
 import pki
 
@@ -170,7 +161,7 @@ def index():
     if seeAlso1 and seeAlso == seeAlso1:
         flash('Success updating seeAlso')
 
-    x509cn = request.form.get('x509cn') or (hello+' (WebID)')
+    x509cn = request.form.get('x509cn') or hello
     x509days = int(request.form.get('x509days') or 365)
     spkac = request.form.get('spkac','').replace('\n','').replace('\r','')
     if spkac:
@@ -228,5 +219,6 @@ def login():
 
 @app.route('/logout')
 def logout():
-    del session['user']
+    if 'user' in session:
+        del session['user']
     return redirect('/')
