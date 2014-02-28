@@ -27,5 +27,13 @@ RewriteCond %{REQUEST_URI} !^/user/
 RewriteCond %{REQUEST_URI} !@
 RewriteRule ^(.*)$ https://%{SERVER_NAME}/$1 [R,QSA,L]
 
+RewriteRule favicon.ico https://scripts.mit.edu/favicon.ico [R,L]
+
+RewriteCond %{REQUEST_URI} ^/$ [OR]
+RewriteCond %{REQUEST_URI} ^/login [OR]
+RewriteCond %{REQUEST_URI} ^/logout
+RewriteRule ^(.*)$ app.fcgi/$1 [QSA,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)$ gold.fcgi/$1 [QSA,L]
 RewriteRule ^(.*)$ app.fcgi/$1 [QSA,L]
